@@ -22,7 +22,7 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: 'StoreIt',
   description:
-    'StoreIt is a modern, open-source e-commerce platform built with Next.js and TypeScript.',
+    'StoreIt - A modern, clean, and simple file storage solution.',
 };
 
 export default function RootLayout({
@@ -33,7 +33,7 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${poppins.variable} font-poppins antialiased`}
       >
         {children}
       </body>
