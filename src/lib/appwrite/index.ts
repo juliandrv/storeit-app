@@ -33,9 +33,11 @@ export const createSessionClient = async () => {
 
 export const createAdminClient = async () => {
   if (!appwriteConfig.secretKey) {
-    throw new Error('Appwrite API key is missing. Check your environment variables.');
+    throw new Error(
+      'Appwrite API key is missing. Check your environment variables.'
+    );
   }
-  
+
   const client = new Client()
     .setEndpoint(appwriteConfig.endpointUrl)
     .setProject(appwriteConfig.projectId)

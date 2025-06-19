@@ -18,6 +18,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { createAccount } from '@/lib/actions/user.actions';
+import OTPModal from './OTPModal';
 
 type FormType = 'sign-in' | 'sign-up';
 
@@ -39,6 +40,7 @@ const AuthForm = ({ type }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [accountId, setAccountId] = useState(null);
+  const [showOTPModal, setShowOTPModal] = useState(false);
 
   const formSchema = authFormSchema(type);
 
@@ -63,6 +65,7 @@ const AuthForm = ({ type }: Props) => {
       });
 
       setAccountId(user.accountId);
+      setShowOTPModal(true);
     } catch (error) {
       setErrorMessage('Failed to create account. Please try again.');
     } finally {
@@ -169,7 +172,13 @@ const AuthForm = ({ type }: Props) => {
         </form>
       </Form>
 
-      {/* OTP Verification */}
+      {accountId && showOTPModal && (
+        <OTPModal
+          email={form.getValues('email')}
+          accountId={accountId}
+          onClose={() => setShowOTPModal(false)}
+        />
+      )}
     </>
   );
 };

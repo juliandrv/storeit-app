@@ -1,9 +1,11 @@
 'use server';
 
+import { cookies } from 'next/headers';
 import { ID, Query } from 'node-appwrite';
-import { createAdminClient } from '../appwrite';
+import { createAdminClient, createSessionClient } from '../appwrite';
 import { appwriteConfig } from '../appwrite/config';
 import { parseStringify } from '../utils';
+import { avatarPlaceholderUrl } from '../../../constants';
 
 type AccountProps = {
   email: string;
@@ -27,7 +29,7 @@ const handleError = (error: unknown, message: string) => {
   throw error;
 };
 
-const sendEmailOTP = async ({ email }: { email: string }) => {
+export const sendEmailOTP = async ({ email }: { email: string }) => {
   const { account } = await createAdminClient();
 
   try {
@@ -62,12 +64,55 @@ export const createAccount = async ({
       {
         fullname,
         email,
-        avatar:
-          'https://images.icon-icons.com/3446/PNG/512/account_profile_user_avatar_icon_219236.png',
+        avatar: avatarPlaceholderUrl,
         accountId,
       }
     );
   }
 
   return parseStringify({ accountId });
+};
+
+export const verifySecret = async ({
+  accountId,
+  password,
+}: {
+  accountId: string;
+  password: string;
+}) => {
+  try {
+    const { account } = await createAdminClient();
+    const session = await account.createSession(accountId, password);
+    (await cookies()).set('appwrite-session', session.secret, {
+      path: '/',
+      httpOnly: true,
+      sameSite: 'strict',
+      secure: process.env.NODE_ENV === 'production',
+    });
+    return parseStringify({
+      sessionId: session.$id,
+    });
+  } catch (error) {
+    handleError(error, 'Failed to verify OTP');
+  }
+};
+
+export const getCurrentUser = async () => {
+  try {
+    const { databases, account } = await createSessionClient();
+
+    const result = await account.get();
+
+    const user = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.usersCollectionId,
+      [Query.equal('accountId', result.$id)]
+    );
+
+    if (user.total <= 0) return null;
+
+    return parseStringify(user.documents[0]);
+  } catch (error) {
+    console.log(error);
+  }
 };
