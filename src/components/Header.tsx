@@ -4,15 +4,18 @@ import Search from './Search';
 import FileUploader from './FileUploader';
 import { signOutUser } from '@/lib/actions/user.actions';
 
-type Props = {};
+type Props = {
+  userId: string;
+  accountId: string;
+};
 
-const Header = ({}: Props) => {
+const Header = ({ userId, accountId }: Props) => {
   return (
     <header className='header'>
       <Search />
 
       <div className='header-wrapper flex-center'>
-        <FileUploader />
+        <FileUploader ownerId={userId} accountId={accountId} />
 
         <form
           action={async () => {

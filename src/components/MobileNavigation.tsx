@@ -19,7 +19,7 @@ import FileUploader from './FileUploader';
 import { signOutUser } from '@/lib/actions/user.actions';
 
 type Props = {
-  ownerId: string;
+  $id: string;
   accountId: string;
   fullname: string;
   email: string;
@@ -27,7 +27,7 @@ type Props = {
 };
 
 const MobileNavigation = ({
-  ownerId,
+  $id: ownerId,
   accountId,
   fullname,
   email,
@@ -56,7 +56,10 @@ const MobileNavigation = ({
           />
         </SheetTrigger>
 
-        <SheetContent className='shad-sheet h-screen px-3'>
+        <SheetContent
+          aria-describedby=''
+          className='shad-sheet h-screen px-3'
+        >
           <SheetTitle>
             <div className='header-user'>
               <Image
@@ -103,7 +106,7 @@ const MobileNavigation = ({
             </ul>
           </nav>
 
-          <FileUploader />
+          <FileUploader ownerId={ownerId} accountId={accountId} />
           <Separator className='my-5 bg-light-200/20' />
 
           <div className='flex flex-col justify-between gap-5 pb-5'>

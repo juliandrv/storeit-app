@@ -135,8 +135,6 @@ export const formatDateTime = (
   return `${time}, ${day} ${month}`;
 };
 
-type FileType = 'document' | 'image' | 'video' | 'audio' | 'other';
-
 export const getFileIcon = (
   extension: string | undefined,
   type: FileType | string
