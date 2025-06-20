@@ -82,6 +82,6 @@ export const sortTypes = [
 ];
 
 export const avatarPlaceholderUrl =
-  'https://images.icon-icons.com/3446/PNG/512/account_profile_user_avatar_icon_219236.png';
+  'https://getillustrations.b-cdn.net//photos/pack/3d-avatar-male_lg.png';
 
 export const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB

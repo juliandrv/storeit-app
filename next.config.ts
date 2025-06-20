@@ -9,6 +9,10 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'getillustrations.b-cdn.net',
+      },
+      {
+        protocol: 'https',
         hostname: 'cloud.appwrite.io',
       },
     ],
