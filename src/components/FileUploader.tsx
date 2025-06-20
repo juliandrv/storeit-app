@@ -30,7 +30,7 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
       const uploadPromises = acceptedFiles.map(async (file) => {
         if (file.size > MAX_FILE_SIZE) {
           setFiles((prevFiles) =>
-            prevFiles.filter((f) => f.name !== f.name)
+            prevFiles.filter((f) => f.name !== file.name)
           );
 
           return toast(
@@ -46,7 +46,15 @@ const FileUploader = ({ ownerId, accountId, className }: Props) => {
           (uploadedFile) => {
             if (uploadedFile) {
               setFiles((prevFiles) =>
-                prevFiles.filter((f) => f.name !== f.name)
+                prevFiles.filter((f) => f.name !== file.name)
+              );
+
+              toast(
+                <p className='body-2 text-white'>
+                  <span className='font-semibold'>{file.name}</span>{' '}
+                  uploaded successfully.
+                </p>,
+                { className: 'success-toast' }
               );
             }
           }
