@@ -1,5 +1,5 @@
-import { cn, getFileIcon } from '@/lib/utils';
 import Image from 'next/image';
+import { cn, getFileIcon } from '@/lib/utils';
 
 type Props = {
   type: string;
