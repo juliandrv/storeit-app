@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -21,12 +21,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Models } from 'node-appwrite';
 
-import { actionsDropdownItems } from '../../constants';
-import { constructDownloadUrl } from '@/lib/utils';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { renameFile } from '@/lib/actions/file.actions';
-import { usePathname } from 'next/navigation';
+import { FileDetails, ShareInput } from './ActionsModalContent';
+
+import { constructDownloadUrl } from '@/lib/utils';
+import {
+  deleteFile,
+  renameFile,
+  updateFileUsers,
+} from '@/lib/actions/file.actions';
+import { actionsDropdownItems } from '../../constants';
 
 type Props = {
   file: Models.Document;
@@ -38,6 +43,7 @@ const ActionDropdown = ({ file }: Props) => {
   const [action, setAction] = useState<ActionType | null>(null);
   const [name, setName] = useState<string>(file.name);
   const [isLoading, setIsLoading] = useState(false);
+  const [emails, setEmails] = useState<string[]>([]);
 
   const path = usePathname();
 
@@ -64,8 +70,14 @@ const ActionDropdown = ({ file }: Props) => {
           extension: file.extension,
           path,
         }),
-      share: () => console.log('share'),
-      delete: () => console.log('delete'),
+      share: () =>
+        updateFileUsers({ fileId: file.$id, emails, path }),
+      delete: () =>
+        deleteFile({
+          fileId: file.$id,
+          path,
+          bucketFileId: file.bucketFileId,
+        }),
     };
 
     success = await actions[action.value as keyof typeof actions]();
@@ -77,13 +89,26 @@ const ActionDropdown = ({ file }: Props) => {
     setIsLoading(false);
   };
 
+  const handleRemoveUser = async (email: string) => {
+    const updatedEmails = emails.filter((em) => em !== email);
+
+    const success = await updateFileUsers({
+      fileId: file.$id,
+      emails: updatedEmails,
+      path,
+    });
+
+    if (success) setEmails(updatedEmails);
+    closeAllModals();
+  };
+
   const renderDialogContent = () => {
     if (!action) return null;
 
     const { value, label } = action;
 
     return (
-      <DialogContent className='shad-dialog button'>
+      <DialogContent className='shad-dialog '>
         <DialogHeader className='flex flex-col gap-3'>
           <DialogTitle className='text-center text-light-100'>
             {label}
@@ -96,13 +121,30 @@ const ActionDropdown = ({ file }: Props) => {
               onChange={(e) => setName(e.target.value)}
             />
           )}
+
+          {value === 'details' && <FileDetails file={file} />}
+
+          {value === 'share' && (
+            <ShareInput
+              file={file}
+              onInputChange={setEmails}
+              onRemove={handleRemoveUser}
+            />
+          )}
+
+          {value === 'delete' && (
+            <p className='delete-confirmation'>
+              Are you sure you want to delete{` `}
+              <span className='delete-file-name'>{file.name}</span>?
+            </p>
+          )}
         </DialogHeader>
 
         {['rename', 'delete', 'share'].includes(value) && (
           <DialogFooter className='flex flex-col gap-3 md:flex-row'>
             <Button
               onClick={closeAllModals}
-              className='modal-cancel-button'
+              className='modal-cancel-button cursor-pointer'
             >
               Cancel
             </Button>
@@ -133,7 +175,7 @@ const ActionDropdown = ({ file }: Props) => {
         open={isDropdownOpen}
         onOpenChange={setIsDropdownOpen}
       >
-        <DropdownMenuTrigger className='shad-no-focus'>
+        <DropdownMenuTrigger className='shad-no-focus cursor-pointer'>
           <Image
             src='/assets/icons/dots.svg'
             alt='dots'
